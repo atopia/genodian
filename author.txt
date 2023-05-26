@@ -1,0 +1,9 @@
+Ben became hooked on Microkernel Operating Systems in his early years at Technische Universität Dresden.
+He has joined Genode Labs as an Operating Systems Engineer in 2022.
+His current focus is on x86 virtualization and he's enthusiastic about making the Rust programming language usable in the Genode OS Framework.
+
+*GitHub* [https://github.com/atopia - atopia]
+
+*Company* [https://www.genode-labs.com - Genode Labs]
+
+*Pronouns* he/him
