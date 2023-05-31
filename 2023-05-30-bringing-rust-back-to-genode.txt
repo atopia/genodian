@@ -13,7 +13,7 @@ A new direction for Rust on Genode
 
 Contrary to the first iteration that focussed on low-level runtime library
 support and integration into the Genode build system, our objective this time
-was to facilitate using the exiting Rust ecosystem in Genode.
+was to facilitate using the existing Rust ecosystem in Genode.
 Specifically, the integration effort was guided by the following:
 
 # Make use of the native build system,
@@ -74,13 +74,23 @@ your choosing and follow the instructions:
 
 In case you're wondering, we need the stable toolchain to provide the standard tools such as 'cargo'.
 If you don't have it already, please also follow the instructions to install Genode's [https://genode.org/download/tool-chain - toolchain].
-With the toolchains in place, it's time to try out Goa's Rust support:
+
+Since precompiled packages are only provided at Sculpt releases, next you will need to build the required runtime packages so they feature the necessary libc extensions.
+For this, please follow the [https://genode.org/documentation/genode-foundations/23.05/getting_started/index.html - Getting started instructions] to get a working Genode build environment.
+Once you have a working development environment at _path/to/genode_, please do the following:
+
+! path/to/genode $ ./tool/depot/create FORCE=1 REBUILD= UPDATE_VERSIONS=1 \
+!                  genodelabs/bin/x86_64/vfs genodelabs/bin/x86_64/posix  \
+!                  genodelabs/bin/x86_64/init genodelabs/bin/x86_64/libc  \
+!                  genodelabs/bin/x86_64/base-linux
+
+With the toolchains and the necessary packages in place, it's time to try out Goa's Rust support:
 
 ! $ git clone https://github.com/genodelabs/goa
 ! $ cd goa
 ! goa $ export PATH="$PATH:$(pwd)/bin"
-! goa $ cd examples/hello_rust
-! goa/examples/hello_rust $ goa run
+! goa $ goa run -C examples/hello_rust --versions-from-genode-dir path/to/genode \
+!                                      --depot-dir path/to/genode/depot
 
 If all goes well, this should print
 'Hello Genode Rust world!'
@@ -109,3 +119,5 @@ Exploring Rust on top of the native Genode OS Framework
 =======================================================
 
 Once Rust has proven itself on top of our POSIX runtime, we can start exploring its feasibility in our native OS Framework. For now this is more a moonshot goal than a near term priority, but we hope that the present work will provide a starting point for any commercial interest and I would be excited to see what can be archived with two of my favorite pieces of software working together.
+
+_This article was amended on 2023-05-31 to fix incomplete build instructions. I apologize for the inconvenience._
