@@ -1,0 +1,55 @@
+
+
+          Enabling the upstream Rust toolchain
+
+
+Release 23.05 reintroduced [https://genode.org/documentation/release-notes/23.05#Initial_Rust_support - support for the Rust programming language] to Genode, but our initial implementation relied on a slightly adapted Rust toolchain.
+As detailed in [https://genodians.org/atopia/2023-05-30-bringing-rust-back-to-genode - my previous blog post], we were working around issues with versioned FreeBSD libc symbols that were unsupported by our linker.
+
+With [https://genode.org/documentation/release-notes/23.08 - release 23.08], we have overcome this limitation.
+My colleague [https://genodians.org/ssumpf/ - Sebastian Sumpf] implemented a compatibility library and we managed to minimize runtime impact by injecting it as a static library into the 'rustc' linker invocation.
+
+Slightly simpler instructions to get started
+############################################
+
+On x86_64 Linux, first install Rust's [https://github.com/rust-lang/rustup/ - rustup] toolchain manager by a method of your choosing and proceed to install the upstream 'x86_64-unknown-freebsd' target:
+
+! $ rustup toolchain install stable-x86_64-unknown-linux-gnu
+! $ rustup target add x86_64-unknown-freebsd
+
+
+Until we provide new pre-built Genode packages with the upcoming [https://genode.org/download/sculpt - Sculpt] release, you still need to build the required runtime packages.
+For this, [https://genode.org/download/tool-chain - install Genode's toolchain] and follow the [https://genode.org/documentation/genode-foundations/23.05/getting_started/index.html - Getting started instructions] to get a working Genode build environment.
+Once you have a working development environment at _path/to/genode_, locally build the required packages:
+
+! $ cd path/to/genode
+! path/to/genode $ ./tool/depot/create FORCE=1 REBUILD= UPDATE_VERSIONS=1 \
+!                  genodelabs/bin/x86_64/vfs genodelabs/bin/x86_64/posix  \
+!                  genodelabs/bin/x86_64/init genodelabs/bin/x86_64/libc  \
+!                  genodelabs/bin/x86_64/base-linux \
+!                  genodelabs/api/compat-libc
+
+
+You should now be able to build our example Rust application with Goa using the upstream Rust toolchain:
+
+! $ git clone https://github.com/genodelabs/goa
+! $ cd goa
+! goa $ export PATH="$PATH:$(pwd)/bin"
+! goa $ goa run -C examples/hello_rust --versions-from-genode-dir path/to/genode \
+!                                      --depot-dir path/to/genode/depot
+
+
+As a little test of the versioned C library calls, this should print:
+
+! [init -> hello_rust] Hello Genode Rust world!
+! [init -> hello_rust] FileType(FileType { mode: 32896 })
+! [init -> hello_rust] inode: 1
+
+
+In the publishing pipeline: a real Rust package
+###############################################
+
+We have a port of the popular [https://github.com/BurntSushi/ripgrep - ripgrep] search tool running on Genode.
+While building a Goa package was a pleasant, straightforward experience, the build was pushing the boundaries of our FreeBSD 'libc' backend.
+This is to be expected: we extend our support of the FreeBSD or Posix API incrementally as needed.
+Although the extension of our libc backend went smoothly, we decided to give it some more testing and publish our ripgrep package at the next Sculpt OS release, when the supporting packages are available at _depot.genode.org_.
