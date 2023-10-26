@@ -1,0 +1,53 @@
+
+
+          A first complex Rust package
+
+
+With the release of depot packages for [https://genode.org/news/sculpt-os-release-23.10 - Sculpt OS 23.10], we finally have all building blocks in place to build and run a Rust package without needing to locally build its Genode dependencies.
+
+As teased in the [https://genodians.org/atopia/2023-08-24-enabling-the-upstream-rust-toolchain - previous blog post], we have picked the popular _[https://github.com/BurntSushi/ripgrep - ripgrep]_ search tool as a first complex Rust package to run on Genode. The Goa package is now available from [https://github.com/atopia/ripgrep-goa].
+
+Possibilities and Limitations
+#############################
+After the building blocks for using the Rust's FreeBSD target were in place, making _ripgrep_ work on Genode was mainly a matter of implementing or stubbing out a few missing symbols from our _libc_ port. This speaks to the convenience of [https://github.com/genodelabs/goa/ - Goa]. On the other hand, although the porting effort has been relatively minor, any newly used Rust crate may introduce library dependencies that are not readily available on Genode. This is no different to porting C or C++ software to Genode, it is just obscured through the use of Rust's _Cargo_ build tool.
+
+Besides possible limitations in scope, there is also the question of forward compatibility:
+the build has been tested with version 1.73.0 of the Rust toolchain on Sculpt OS release 23.10 and may fail to compile with future versions due to incompatibilities with the Genode OS port of FreeBSD's C library.
+In some way, this is also true for running future versions of the Rust toolchain on existing FreeBSD installations, it's just that ABI raises are explicit for a platform with official [https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-2-with-host-tools - Tier 2 platform support] and that future releases of Rust's standard library for FreeBSD may link against symbols in the current FreeBSD ABI that are currently not provided by our _libc_ port.
+
+Moreover, running _rg_ on Genode may lead to runtime warnings or errors, especially when extending the example to more complex scenarios. For example, the runtime passes the '--no-mmap' switch to rg to suppress an error message because the used Inline file system does not support _mmap(3)_.
+
+
+Recap: build and test instructions
+##################################
+
+1. On x86_64 Linux, first install Rust's [https://github.com/rust-lang/rustup/ - rustup] toolchain manager by a method of your choosing and proceed to install the upstream 'x86_64-unknown-freebsd' target:
+
+! $ rustup toolchain install stable-x86_64-unknown-linux-gnu
+! $ rustup target add x86_64-unknown-freebsd
+
+2. Install [https://github.com/genodelabs/goa/ - Goa]:
+
+! $ git clone https://github.com/genodelabs/goa
+! $ export PATH="$PATH:$(pwd)/goa/bin"
+
+3. Build and run ripgrep:
+! $ git clone https://github.com/atopia/ripgrep-goa
+! $ goa run -C ripgrep-goa
+
+Expected output:
+
+! [init -> ripgrep-goa] 3:            say hello to Genode!
+! [init] child "ripgrep-goa" exited with exit value 0
+
+
+Conclusions and future directions
+#################################
+
+Our renewed efforts to bring Rust to Genode have been fruitful in proving the feasibility of running complex Rust components on Genode.
+As a side effect, we have successfully managed to integrate binary components using the FreeBSD C library ABI and have seen and overcome more limitations of our libc port.
+
+We feel that simply trying to make our C++ API available from Rust would not do justice to our ambition to provide an idiomatic API.
+Instead we think that a Genode Rust API should be designed in tandem with Rust components so that appropriate abstractions can be chosen.
+So far we don't have any specific plans for Genode components in Rust, but if concrete use cases arise, we are open to explore the expansion of the surface of the Genode OS Framework available from Rust.
+
