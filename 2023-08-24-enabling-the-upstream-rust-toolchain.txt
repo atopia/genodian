@@ -53,3 +53,5 @@ We have a port of the popular [https://github.com/BurntSushi/ripgrep - ripgrep] 
 While building a Goa package was a pleasant, straightforward experience, the build was pushing the boundaries of our FreeBSD 'libc' backend.
 This is to be expected: we extend our support of the FreeBSD or Posix API incrementally as needed.
 Although the extension of our libc backend went smoothly, we decided to give it some more testing and publish our ripgrep package at the next Sculpt OS release, when the supporting packages are available at _depot.genode.org_.
+
+| rust goa libc

@@ -51,3 +51,4 @@ We feel that simply trying to make our C++ API available from Rust would not do 
 Instead we think that a Genode Rust API should be designed in tandem with Rust components so that appropriate abstractions can be chosen.
 So far we don't have any specific plans for Genode components in Rust, but if concrete use cases arise, we are open to explore the expansion of the surface of the Genode OS Framework available from Rust.
 
+| rust goa packages

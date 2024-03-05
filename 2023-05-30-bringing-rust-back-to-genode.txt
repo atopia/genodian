@@ -121,3 +121,5 @@ Exploring Rust on top of the native Genode OS Framework
 Once Rust has proven itself on top of our POSIX runtime, we can start exploring its feasibility in our native OS Framework. For now this is more a moonshot goal than a near term priority, but we hope that the present work will provide a starting point for any commercial interest and I would be excited to see what can be archived with two of my favorite pieces of software working together.
 
 _This article was amended on 2023-05-31 to fix incomplete build instructions. I apologize for the inconvenience._
+
+| rust goa libc
