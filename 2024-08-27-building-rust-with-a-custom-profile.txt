@@ -1,0 +1,48 @@
+
+
+          Building Rust projects with a custom profile
+
+
+Starting with Rust 1.77, our Rust Goa projects were giving us trouble.
+My colleague Sebastian was quick to figure out and fix the initial
+[https://github.com/genodelabs/genode/issues/5209 - runtime linking problem].
+However, with that out of the way, the applications would simply crash with a segfault.
+Examining the offending address with 'objdump' revealed the culprit:
+The concern that I had 
+[https://genodians.org/atopia/2023-05-30-bringing-rust-back-to-genode - articulated]
+when introducing our new approach to Rust, which was based on the binary 'x86_64-unknown-freebsd' target, had become reality: the x86_64 FreeBSD standard library was using Thread Local Storage (TLS) via the 'thread_local!' macro, which would compile into an offset from the General Purpose F Segment (FS) register.
+Since Genode does not provide a TLS area via 'FS', this ended up accessing an offset into the zero page, thus causing the segfault.
+
+After discussing our options, we decided to explore alternatives to using Rust's pre-compiled FreeBSD target.
+We had previously experimented with cargo's '-Z build-std' option for building invoked parts of the Rust std library from source.
+We then created a custom 'x86_64-unknown-genode' profile, which mirrored the FreeBSD profile, except for setting 'tls-model' to 'emulated'.
+In combination, we are now able to compile Rust software for Genode using the latest Rust _nightly_ toolchain, while still leveraging the FreeBSD port of the Rust standard library instead of having to maintain a separate port of the standard library for Genode.
+
+
+Renewed build instructions
+##########################
+
+Using '-Z build-std' requires the use of a _nightly_ toolchain.
+
+1. On x86_64 Linux, first install Rust's [https://github.com/rust-lang/rustup/ - rustup] toolchain manager by a method of your choosing and proceed to install the 'nightly' toolchain and the 'rust-src' component:
+
+! $ rustup toolchain install nightly
+! $ rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+
+2. Install [https://github.com/genodelabs/goa/ - Goa]:
+
+! $ git clone https://github.com/genodelabs/goa
+! $ export PATH="$PATH:$(pwd)/goa/bin"
+
+3. Build and run the example application:
+! $ cd goa
+! goa $ goa run -C examples/hello_rust
+
+
+Upcoming: expanding libc support
+################################
+
+We are currently in the process of broadening the scope of our FreeBSD libc port in order to support more complex Rust packages, more specifically packages using async runtimes such as [https://tokio.rs/ - Tokio].
+There are still a few issues to resolve, but we hope to offer support for async Rust later this year.
+
+| rust goa
