@@ -7,6 +7,7 @@ Starting with Rust 1.77, our Rust Goa projects were giving us trouble.
 My colleague Sebastian was quick to figure out and fix the initial
 [https://github.com/genodelabs/genode/issues/5209 - runtime linking problem].
 However, with that out of the way, the applications would simply crash with a segfault.
+
 Examining the offending address with 'objdump' revealed the culprit:
 The concern that I had 
 [https://genodians.org/atopia/2023-05-30-bringing-rust-back-to-genode - articulated]
